@@ -10,21 +10,18 @@
 typedef struct recipe {
 	int id;
 	char name[32];
-	char desc[512];
+	char desc[1028];
 };
-struct recipe list[128];
-int len = (sizeof(list) / sizeof(list[0]));
 char dir[1028];
+char testdir[1028];
 void newRecipe();
 void removeRecipe(int n);
 void openRecipe(int n);
 int main(void) {
-	TCHAR username[256];
-	DWORD size = sizeof(username);
-	GetUserNameA(username, &size);
-	snprintf(dir, 1028, "C:\\Users\\%s\\AppData\\Local\\ECE160_Project\\Recipes", username);
+	_getcwd(dir, sizeof(dir));
+	snprintf(dir, 1028, "%s\\Recipes", dir);
 	_chdir(dir);
-	printf("This program stores and recalls user inputted recipes. Input the number to the left of an entry to view its content. \nInput n to create a new recipe. Input d to delete a recipe. Input e to edit an existing recipe.\n");
+	printf("This program stores and recalls user inputted recipes. Input the number to the left of an entry to view its content. \nInput 'n' to create a new recipe. Input 'd' to delete a recipe. Input 'e' to edit an existing recipe.\n");
 	newRecipe();
 }
 void openRecipe(int n) {}
@@ -37,7 +34,7 @@ void newRecipe() {
 	fgets(newRec.name, sizeof(newRec.name), stdin);
 	newRec.name[strcspn(newRec.name, "\n")] = 0;
 	snprintf(filename, 35, "%s.txt", newRec.name);
-	printf("Enter description of %s in the opened text file:\n", newRec.name);
+	printf("Enter description of %s in the opened text file and save when done:\n", newRec.name);
 	snprintf(filepath, 1028, "%s\\\"%s\"", dir, filename);
 	fopen_s(&dat, filename, "w");
 	fclose(dat);
