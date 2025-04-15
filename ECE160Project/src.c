@@ -23,11 +23,12 @@ int main(void) {
 	listRecipes();		//show list of recipes and their indexes
 	while (1) {
 		scanInput();	//continually scan for user's input
+		system("cls");
 	}
 }
 
 void listRecipes() {
-	//scans and lists all the .txt files in the Recipes folder
+	//scans and lists all the .txt files in the Recipes folder and saves them to an array for later indexing
 	HANDLE hFind = INVALID_HANDLE_VALUE;	//Handle is a data type used to interract with files in windows. it is initiallized to Invalid_Handle_Value
 	WIN32_FIND_DATA ffd;					//stores the data collected from each file scanned. Most important to our use case is the file name
 	hFind = FindFirstFileA(opDir, &ffd);	//Initialize the handle to the first file found in the Recipes directory, here the directory path passed to the function is opDir, which is the working directiory + /*.txt appended to tell the find file function to only scan for all .txt files. file data is saved to ffd
@@ -44,30 +45,21 @@ void listRecipes() {
 			recCount++;														//increses index number by 1
 			free(recList[recCount]);										//frees memory allocated to the pointer earlier
 		}
-	} while (FindNextFileA(hFind, &ffd) != 0);									//executes until function fails, could specify more with ERROR_NO_MORE_FILES but thats harder
+	} while (FindNextFileA(hFind,&ffd)!=0);									//executes until function fails, could specify more with ERROR_NO_MORE_FILES but thats harder
 	FindClose(hFind);														//close the find function
 }
 void openRecipe(int n) {
 	//reads the recipe from the file users input
 	FILE* dat;
 	char buffer[1028];
-	if (recList[n] != 0) {
-		system("cls");
-		char* filename = recList[n];
-		fopen_s(&dat, filename, "r");
-		while (fgets(buffer, sizeof(buffer), dat) != NULL) {
-			printf("%s", buffer);
-		}
-		fclose(dat);
-		printf("\n\nPress ENTER to return");
-		getchar();
-		system("cls");
-		listRecipes();
+	char* filename = recList[n];
+	fopen_s(&dat, filename, "r");
+	while (fgets(buffer, sizeof(buffer), dat) != NULL) {
+		printf("%s", buffer);
 	}
-	else {
-		printf("Invalid index. Try again.\n");
-		getchar();
-	}
+	fclose(dat);
+	printf("\n\n\n");
+	
 }
 void newRecipe() {
 	FILE* dat;
@@ -79,12 +71,12 @@ void newRecipe() {
 	newRecName[strcspn(newRecName, "\n")] = 0;														//fgets appends (or reads?) the newline character from hitting enter to submit your input and thats a problem so this function just strips away that \n character
 	snprintf(filename, sizeof(filename), "%s.txt", newRecName);										//takes the name the user inputted and adds .txt to the end so that the resulting file that is created lower down in this function will be a .txt file
 	printf("Enter description of %s in the opened text file and save when done:\n", newRecName);
-	snprintf(filepath, sizeof(filepath), "%s\\\"%s\"", dir, filename);							//this gets what will be the filepath of the created file and saves it to filepath
-	fopen_s(&dat, filename, "w");																	//created new file with the user inputted name of .txt type
-	fclose(dat);																					//closes newly created file
-	system(filepath);																				//executes the .txt file to open it and allow users to easily type in recipe
-	system("cls");																					//clears the terminal
-	listRecipes();																					//updates recList with the new file created and lists the recipes again with the newly created recipe shown
+	snprintf(filepath, sizeof(filepath), "%s\\\"%s\"", dir, filename);	//this gets what will be the filepath of the created file and saves it to filepath
+	fopen_s(&dat, filename, "w");										//created new file with the user inputted name of .txt type
+	fclose(dat);														//closes newly created file
+	system(filepath);													//executes the .txt file to open it and allow users to easily type in recipe
+	system("cls");														//clears the terminal
+	listRecipes();														//updates recList with the new file created and lists the recipes again with the newly created recipe shown
 }
 void editRecipe(int n) {
 	char filepath[MAX_PATH];
@@ -120,13 +112,11 @@ void setDir() {
 	_chdir(dir);											//finally sets the current working directory to the Recipes folder
 }
 void scanInput() {
-	/*This function scans the user's desired input. it first scans what action the user wants to perform (as in view recipe or create a new one) then executes the function to perform that action*/
 	char select;
 	printf("Input your selection: ");
-	scanf_s(" %c", &select, 1);
-	getchar();
-	switch (select) {
-		int sel;
+	scanf_s(" %c", &select);
+	switch(select){
+	int sel;
 	case 's':
 		//select recipe
 		//need to add detection so that user can only pass int or program crashes
@@ -157,4 +147,6 @@ void scanInput() {
 		printf("Invalid input. Try again.\n");
 		break;
 	}
+
 }
+
