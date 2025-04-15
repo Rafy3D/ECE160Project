@@ -129,6 +129,9 @@
   <ItemGroup>
     <ClCompile Include="src.c" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="backup.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
