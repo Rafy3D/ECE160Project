@@ -9,7 +9,7 @@
 /*Variables & Declarations*/
 char dir[MAX_PATH];
 char opDir[MAX_PATH];
-char* recList[64] = {0};
+char* recList[64] = { 0 };
 void newRecipe();
 void removeRecipe(int n);
 void openRecipe(int n);
@@ -21,7 +21,7 @@ int recCount;
 int main(void) {
 	setDir();			//sets the working directory to Recipes folder
 	listRecipes();		//show list of recipes and their indexes
-	while(1){
+	while (1) {
 		scanInput();	//continually scan for user's input
 	}
 }
@@ -40,11 +40,11 @@ void listRecipes() {
 			char* name = ffd.cFileName;										// sets the variable name to the name of the current file scanned including the .txt extension
 			printf("%d\t%s \n", recCount, name);							//prints the recipe name along with its index number
 			recList[recCount] = malloc(strlen(name) + 1);					//allocates memory to the current pointer in recList to scanned recipe name
-			strcpy_s(recList[recCount], strlen(name)+1, name);				//adds the current scanned file name to recList at the position denoted by its index numbers for future indexing
+			strcpy_s(recList[recCount], strlen(name) + 1, name);				//adds the current scanned file name to recList at the position denoted by its index numbers for future indexing
 			recCount++;														//increses index number by 1
 			free(recList[recCount]);										//frees memory allocated to the pointer earlier
 		}
-	} while (FindNextFileA(hFind,&ffd)!=0);									//executes until function fails, could specify more with ERROR_NO_MORE_FILES but thats harder
+	} while (FindNextFileA(hFind, &ffd) != 0);									//executes until function fails, could specify more with ERROR_NO_MORE_FILES but thats harder
 	FindClose(hFind);														//close the find function
 }
 void openRecipe(int n) {
@@ -88,7 +88,7 @@ void newRecipe() {
 }
 void editRecipe(int n) {
 	char filepath[MAX_PATH];
-	snprintf(filepath, sizeof(filepath), "%s\\\"%s\"",dir,recList[n]);
+	snprintf(filepath, sizeof(filepath), "%s\\\"%s\"", dir, recList[n]);
 	system(filepath);
 	system("cls");
 	listRecipes();
@@ -97,13 +97,13 @@ void removeRecipe(int n) {
 	printf("Are you sure you want to delete this recipe? It cannot be recovered. (Y/N): ");
 	char sel;
 	scanf_s(" %c", &sel, 1);
-	if (toupper(sel) == 'Y') { 
-		remove(recList[n]); 
+	if (toupper(sel) == 'Y') {
+		remove(recList[n]);
 		printf("Sucessfully deleted file. Press enter to continue");
 		getchar();
 		getchar();
 	}
-	else { 
+	else {
 		printf("Canceling deletion. Press enter to continue");
 		getchar();
 		getchar();
@@ -125,8 +125,8 @@ void scanInput() {
 	printf("Input your selection: ");
 	scanf_s(" %c", &select, 1);
 	getchar();
-	switch(select){
-	int sel;
+	switch (select) {
+		int sel;
 	case 's':
 		//select recipe
 		//need to add detection so that user can only pass int or program crashes
@@ -142,7 +142,7 @@ void scanInput() {
 	case 'e':
 		//edit existing recipe
 		printf("Enter recipe number: ");
-		scanf_s( "%d", &sel);
+		scanf_s("%d", &sel);
 		getchar();
 		editRecipe(sel);
 		break;
