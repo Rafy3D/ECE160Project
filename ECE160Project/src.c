@@ -17,17 +17,17 @@ void setDir();
 void scanInput();
 int recCount;
 
-
 int main(void) {
 	setDir();			//sets the working directory to Recipes folder
 	listRecipes();		//show list of recipes and their indexes
-	while(1){
+	while (1) {
 		scanInput();	//continually scan for user's input
+		system("cls");
 	}
 }
 
 void listRecipes() {
-	//scans and lists all the .txt files in the Recipes folder
+	//scans and lists all the .txt files in the Recipes folder and saves them to an array for later indexing
 	HANDLE hFind = INVALID_HANDLE_VALUE;	//Handle is a data type used to interract with files in windows. it is initiallized to Invalid_Handle_Value
 	WIN32_FIND_DATA ffd;					//stores the data collected from each file scanned. Most important to our use case is the file name
 	hFind = FindFirstFileA(opDir, &ffd);	//Initialize the handle to the first file found in the Recipes directory, here the directory path passed to the function is opDir, which is the working directiory + /*.txt appended to tell the find file function to only scan for all .txt files. file data is saved to ffd
@@ -44,7 +44,7 @@ void listRecipes() {
 			recCount++;														//increses index number by 1
 			free(recList[recCount]);										//frees memory allocated to the pointer earlier
 		}
-	} while (FindNextFileA(hFind,&ffd)!=0);									//executes until function fails, could specify more with ERROR_NO_MORE_FILES but thats harder
+	} while (FindNextFileA(hFind,&ffd)!=0);						//executes until function fails, usually that is when no more files can be found
 	FindClose(hFind);														//close the find function
 }
 void openRecipe(int n) {
@@ -52,13 +52,15 @@ void openRecipe(int n) {
 	FILE* dat;
 	char buffer[1028];
 	char* filename = recList[n];
+	char throwaway;
 	fopen_s(&dat, filename, "r");
+	//printf("\n%s: \n", );
 	while (fgets(buffer, sizeof(buffer), dat) != NULL) {
 		printf("%s", buffer);
 	}
 	fclose(dat);
 	printf("\n\n\n");
-	
+	scanf_s(" %c", &throwaway);
 }
 void newRecipe() {
 	FILE* dat;
@@ -73,6 +75,7 @@ void newRecipe() {
 	snprintf(filepath, sizeof(filepath), "%s\\\"%s\"", dir, filename);	//this gets what will be the filepath of the created file and saves it to filepath
 	fopen_s(&dat, filename, "w");										//created new file with the user inputted name of .txt type
 	fclose(dat);														//closes newly created file
+	setvbuf(dat, NULL, _IONBF, sizeof(dat));
 	system(filepath);													//executes the .txt file to open it and allow users to easily type in recipe
 	system("cls");														//clears the terminal
 	listRecipes();														//updates recList with the new file created and lists the recipes again with the newly created recipe shown
@@ -92,10 +95,9 @@ void setDir() {
 	_chdir(dir);											//finally sets the current working directory to the Recipes folder
 }
 void scanInput() {
-	/*This function scans the user's desired input. it first scans what action the user wants to perform (as in view recipe or create a new one) then executes the function to perform that action*/
 	char select;
 	printf("Input your selection: ");
-	scanf_s(" %c", &select);
+	scanf_s(" %c", &select, sizeof(select));
 	switch(select){
 	int sel;
 	case 's':
@@ -125,4 +127,3 @@ void scanInput() {
 	}
 
 }
-
