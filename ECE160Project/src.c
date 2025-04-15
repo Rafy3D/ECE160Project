@@ -5,10 +5,11 @@
 #include <string.h>
 #include <windows.h>
 #include <conio.h>
+
 /*Variables & Declarations*/
 char dir[MAX_PATH];
 char opDir[MAX_PATH];
-char *recList[64];
+char* recList[64] = {0};
 void newRecipe();
 void removeRecipe(int n);
 void openRecipe(int n);
@@ -16,7 +17,6 @@ void listRecipes();
 void setDir();
 void scanInput();
 int recCount;
-
 
 int main(void) {
 	setDir();			//sets the working directory to Recipes folder
@@ -36,11 +36,11 @@ void listRecipes() {
 	printf("This program stores and recalls user inputted recipes. Input the number to the left of an entry to view its content. \nInput 's' to view a recipe, 'n' to create a new recipe, 'd' to delete a recipe,'e' to edit an existing recipe.\n");
 	printf("\tRECIPES:\n");
 	do {
-		if (hFind != INVALID_HANDLE_VALUE) { //this if should only excecute if the directory is not empty, this doesnt work for now and if you run it with the Recipes folder empty it prints a bunch of crazy shit
-			char* name = ffd.cFileName;		// sets the variable name to the name of the current file scanned including the .txt extension
-			printf("%d\t%s \n", recCount, name);	//prints the recipe name along with its index number
-			recList[recCount] = malloc(strlen(name) + 1); //allocates memory to the current pointer in recList to scanned recipe name
-			strcpy_s(recList[recCount], sizeof(recList[recCount]), name);	//adds the current scanned file name to recList at the position denoted by its index numbers for future indexing
+		if (hFind != INVALID_HANDLE_VALUE) { //this if should only excecute if the directory is not empty, this doesnt work for now and if you run it with the Recipes folder empty it prints a bunch of crazy stuff
+			char* name = ffd.cFileName;										// sets the variable name to the name of the current file scanned including the .txt extension
+			printf("%d\t%s \n", recCount, name);							//prints the recipe name along with its index number
+			recList[recCount] = malloc(strlen(name) + 1);					//allocates memory to the current pointer in recList to scanned recipe name
+			strcpy_s(recList[recCount], strlen(name)+1, name);				//adds the current scanned file name to recList at the position denoted by its index numbers for future indexing
 			recCount++;														//increses index number by 1
 			free(recList[recCount]);										//frees memory allocated to the pointer earlier
 		}
@@ -51,38 +51,66 @@ void openRecipe(int n) {
 	//reads the recipe from the file users input
 	FILE* dat;
 	char buffer[1028];
-	char* filename = recList[n];
-	fopen_s(&dat, filename, "r");
-	while (fgets(buffer, sizeof(buffer), dat) != NULL) {
-		printf("%s", buffer);
+	if (recList[n] != 0) {
+		system("cls");
+		char* filename = recList[n];
+		fopen_s(&dat, filename, "r");
+		while (fgets(buffer, sizeof(buffer), dat) != NULL) {
+			printf("%s", buffer);
+		}
+		fclose(dat);
+		printf("\n\nPress ENTER to return");
+		getchar();
+		system("cls");
+		listRecipes();
 	}
-	fclose(dat);
-	printf("\n\n\n");
-	
+	else {
+		printf("Invalid index. Try again.\n");
+		getchar();
+	}
 }
 void newRecipe() {
 	FILE* dat;
-	char newRecName[32];
-	char filename[36];
-	char filepath[MAX_PATH];
+	char newRecName[_MAX_FNAME];
+	char filename[_MAX_FNAME];
+	char filepath[32000];
 	printf("Enter name of new recipe: ");
-	fgets(newRecName, sizeof(newRecName), stdin);	//scans user input for recipe name
-	newRecName[strcspn(newRecName, "\n")] = 0;	//fgets appends (or reads?) the newline character from hitting enter to submit your input and thats a problem so this function just strips away that \n character
-	snprintf(filename, sizeof(filename), "%s.txt", newRecName);	//takes the name the user inputted and adds .txt to the end so that the resulting file that is created lower down in this function will be a .txt file
+	fgets(newRecName, sizeof(newRecName), stdin);													//scans user input for recipe name
+	newRecName[strcspn(newRecName, "\n")] = 0;														//fgets appends (or reads?) the newline character from hitting enter to submit your input and thats a problem so this function just strips away that \n character
+	snprintf(filename, sizeof(filename), "%s.txt", newRecName);										//takes the name the user inputted and adds .txt to the end so that the resulting file that is created lower down in this function will be a .txt file
 	printf("Enter description of %s in the opened text file and save when done:\n", newRecName);
-	snprintf(filepath, sizeof(filepath), "%s\\\"%s\"", dir, filename);	//this gets what will be the filepath of the created file and saves it to filepath
-	fopen_s(&dat, filename, "w");										//created new file with the user inputted name of .txt type
-	fclose(dat);														//closes newly created file
-	system(filepath);													//executes the .txt file to open it and allow users to easily type in recipe
-	system("cls");														//clears the terminal
-	listRecipes();														//updates recList with the new file created and lists the recipes again with the newly created recipe shown
+	snprintf(filepath, sizeof(filepath), "%s\\\"%s\"", dir, filename);							//this gets what will be the filepath of the created file and saves it to filepath
+	fopen_s(&dat, filename, "w");																	//created new file with the user inputted name of .txt type
+	fclose(dat);																					//closes newly created file
+	system(filepath);																				//executes the .txt file to open it and allow users to easily type in recipe
+	system("cls");																					//clears the terminal
+	listRecipes();																					//updates recList with the new file created and lists the recipes again with the newly created recipe shown
 }
 void editRecipe(int n) {
 	char filepath[MAX_PATH];
-	snprintf(filepath, sizeof(filepath), "%s\\%s",dir,recList[n]);
+	snprintf(filepath, sizeof(filepath), "%s\\\"%s\"",dir,recList[n]);
 	system(filepath);
+	system("cls");
+	listRecipes();
 }
-void removeRecipe(int n) {}
+void removeRecipe(int n) {
+	printf("Are you sure you want to delete this recipe? It cannot be recovered. (Y/N): ");
+	char sel;
+	scanf_s(" %c", &sel, 1);
+	if (toupper(sel) == 'Y') { 
+		remove(recList[n]); 
+		printf("Sucessfully deleted file. Press enter to continue");
+		getchar();
+		getchar();
+	}
+	else { 
+		printf("Canceling deletion. Press enter to continue");
+		getchar();
+		getchar();
+	}
+	system("cls");
+	listRecipes();
+}
 void setDir() {
 	//sets the working directory to the Recipes folder so that everything is nice and organized
 	_getcwd(dir, sizeof(dir));								//gets current directory, should always be project folder
@@ -95,7 +123,8 @@ void scanInput() {
 	/*This function scans the user's desired input. it first scans what action the user wants to perform (as in view recipe or create a new one) then executes the function to perform that action*/
 	char select;
 	printf("Input your selection: ");
-	scanf_s(" %c", &select);
+	scanf_s(" %c", &select, 1);
+	getchar();
 	switch(select){
 	int sel;
 	case 's':
@@ -103,6 +132,7 @@ void scanInput() {
 		//need to add detection so that user can only pass int or program crashes
 		printf("Enter recipe number: ");
 		scanf_s("%d", &sel);
+		getchar();
 		openRecipe(sel);
 		break;
 	case 'n':
@@ -112,17 +142,19 @@ void scanInput() {
 	case 'e':
 		//edit existing recipe
 		printf("Enter recipe number: ");
-		scanf_s("%d", &sel);
+		scanf_s( "%d", &sel);
+		getchar();
 		editRecipe(sel);
 		break;
-	case 'r':
+	case 'd':
 		//remove recipe
-		printf("remove recipe");
+		printf("Enter recipe number: ");
+		scanf_s("%d", &sel);
+		getchar();
+		removeRecipe(sel);
 		break;
 	default:
 		printf("Invalid input. Try again.\n");
 		break;
 	}
-
 }
-
