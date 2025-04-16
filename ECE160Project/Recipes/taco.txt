@@ -1,5 +1,0 @@
-taco shell
-chicken
-salsa
-
-put together and eat :(
