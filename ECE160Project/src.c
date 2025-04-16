@@ -181,3 +181,4 @@ void scanInput() {
 		break;
 	}
 }
+//need to add error handling for when users input invalid characters in filenames or invalid filenames
