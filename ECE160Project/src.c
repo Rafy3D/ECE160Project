@@ -9,7 +9,7 @@
 /*Variables & Declarations*/
 char dir[MAX_PATH];
 char opDir[MAX_PATH];
-char* recList[64] = { 0 };
+char* recList[64] = {NULL};
 void newRecipe();
 void removeRecipe(int n);
 void openRecipe(int n);
@@ -32,8 +32,8 @@ void listRecipes() {
 	WIN32_FIND_DATA ffd;					//stores the data collected from each file scanned. Most important to our use case is the file name
 	hFind = FindFirstFileA(opDir, &ffd);	//Initialize the handle to the first file found in the Recipes directory, here the directory path passed to the function is opDir, which is the working directiory + /*.txt appended to tell the find file function to only scan for all .txt files. file data is saved to ffd
 	recCount = 0;							//counter that will serve as the index for each file
-	memset(recList, 0, sizeof(recList));	//recList is an array that contains the names of all the files that will be scanned. this funciton clears that array to initialize it
-	printf("This program stores and recalls user inputted recipes. Input the number to the left of an entry to view its content. \nInput 's' to view a recipe, 'n' to create a new recipe, 'd' to delete a recipe,'e' to edit an existing recipe.\n");
+	memset(recList, NULL, sizeof(recList));	//recList is an array that contains the names of all the files that will be scanned. this funciton clears that array to initialize it
+	printf("This program stores and recalls user inputted recipes. Input the number to the left of an entry to view its content. \nInput 'v' to view a recipe, 'n' to create a new recipe, 'd' to delete a recipe,'e' to edit an existing recipe. Close program with ESC.\n");
 	printf("\tRECIPES:\n");
 	do {
 		if (hFind != INVALID_HANDLE_VALUE) { //this if should only excecute if the directory is not empty, this doesnt work for now and if you run it with the Recipes folder empty it prints a bunch of crazy stuff
@@ -59,14 +59,14 @@ void openRecipe(int n) {
 			printf("%s", buffer);
 		}
 		fclose(dat);
-		printf("\n\nPress ENTER to return");
-		getchar();
+		printf("\n\nPress any key to return");
+		_getch();
 		system("cls");
 		listRecipes();
 	}
 	else {
 		printf("Invalid index. Try again.\n");
-		getchar();
+		_getch();
 	}
 }
 void newRecipe() {
@@ -75,6 +75,7 @@ void newRecipe() {
 	char filename[_MAX_FNAME];
 	char filepath[32000];
 	printf("Enter name of new recipe: ");
+	fflush(stdin);
 	fgets(newRecName, sizeof(newRecName), stdin);													//scans user input for recipe name
 	newRecName[strcspn(newRecName, "\n")] = 0;														//fgets appends (or reads?) the newline character from hitting enter to submit your input and thats a problem so this function just strips away that \n character
 	snprintf(filename, sizeof(filename), "%s.txt", newRecName);										//takes the name the user inputted and adds .txt to the end so that the resulting file that is created lower down in this function will be a .txt file
@@ -99,14 +100,12 @@ void removeRecipe(int n) {
 	scanf_s(" %c", &sel, 1);
 	if (toupper(sel) == 'Y') {
 		remove(recList[n]);
-		printf("Sucessfully deleted file. Press enter to continue");
-		getchar();
-		getchar();
+		printf("Sucessfully deleted file. Press any key to continue");
+		_getch();
 	}
 	else {
-		printf("Canceling deletion. Press enter to continue");
-		getchar();
-		getchar();
+		printf("Canceling deletion. Press any key to continue");
+		_getch();
 	}
 	system("cls");
 	listRecipes();
@@ -121,37 +120,38 @@ void setDir() {
 }
 void scanInput() {
 	/*This function scans the user's desired input. it first scans what action the user wants to perform (as in view recipe or create a new one) then executes the function to perform that action*/
-	char select;
 	printf("Input your selection: ");
-	scanf_s(" %c", &select, 1);
-	getchar();
-	switch (select) {
+	switch (_getch()) {
 		int sel;
-	case 's':
+	case 'v':
 		//select recipe
 		//need to add detection so that user can only pass int or program crashes
-		printf("Enter recipe number: ");
+		printf("\nEnter recipe number to view: ");
 		scanf_s("%d", &sel);
 		getchar();
 		openRecipe(sel);
 		break;
 	case 'n':
 		//create new recipe
+		printf("\n");
 		newRecipe();
 		break;
 	case 'e':
 		//edit existing recipe
-		printf("Enter recipe number: ");
+		printf("\nEnter recipe number to edit: ");
 		scanf_s("%d", &sel);
 		getchar();
 		editRecipe(sel);
 		break;
 	case 'd':
 		//remove recipe
-		printf("Enter recipe number: ");
+		printf("\nEnter recipe number to delete: ");
 		scanf_s("%d", &sel);
 		getchar();
 		removeRecipe(sel);
+		break;
+	case 27:
+		exit(1);
 		break;
 	default:
 		printf("Invalid input. Try again.\n");
