@@ -101,11 +101,13 @@ void removeRecipe(int n) {
 		remove(recList[n]);
 		printf("Sucessfully deleted file. Press any key to continue");
 		_getch();
+		while ((getchar()) != '\n' && getchar() != EOF);
 	}
 	else {
-		scanf_s("%*[^\n]%*c");
+		
 		printf("Canceling deletion. Press any key to continue");
 		_getch();
+		while ((getchar()) != '\n' && getchar() != EOF);
 	}
 	system("cls");
 	listRecipes();
@@ -130,11 +132,11 @@ void scanInput() {
 		printf("\nEnter recipe number to view: ");
 		if (scanf_s("%d", &sel) != 1) {
 			printf("Invalid index. Try again.\n");
-			scanf_s("%*[^\n]%*c");
+			while ((getchar()) != '\n' && getchar() != EOF);
 			break;
 		}
 		else {
-			scanf_s("%*[^\n]%*c");
+			while ((getchar()) != '\n' && getchar() != EOF);
 			openRecipe(sel);
 			break;
 		}
@@ -150,11 +152,11 @@ void scanInput() {
 		printf("\nEnter recipe number to edit: ");
 		if (scanf_s("%d", &sel) != 1) {
 			printf("Invalid index. Try again.\n");
-			scanf_s("%*[^\n]%*c");
+			while ((getchar()) != '\n' && getchar() != EOF);
 			break;
 		}
 		else {
-			scanf_s("%*[^\n]%*c");
+			while ((getchar()) != '\n' && getchar() != EOF);
 			editRecipe(sel);
 			break;
 		}
@@ -164,11 +166,11 @@ void scanInput() {
 		printf("\nEnter recipe number to delete: ");
 		if (scanf_s("%d", &sel) != 1) {
 			printf("Invalid index. Try again.\n");
-			scanf_s("%*[^\n]%*c");
+			while ((getchar()) != '\n' && getchar() != EOF);
 			break;
 		}
 		else {
-			scanf_s("%*[^\n]%*c");
+			while ((getchar()) != '\n' && getchar() != EOF);
 			removeRecipe(sel);
 			break;
 		}
@@ -178,6 +180,7 @@ void scanInput() {
 		break;
 	default:
 		printf("Invalid input. Try again.\n");
+		while ((getchar()) != '\n' && getchar() != EOF);
 		break;
 	}
 }
