@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <direct.h>
 #include <io.h>
 #include <string.h>
@@ -10,9 +9,6 @@
 char dir[1028];
 char opDir[1028];
 char* recList[64] = {0};
-void newRecipe();
-void removeRecipe(int n);
-void openRecipe(int n);
 void listRecipes();
 void setDir();
 void scanInput();
@@ -29,7 +25,7 @@ int main(void) {
 void listRecipes() {
 	//scans and lists all the .txt files in the Recipes folder
 	HANDLE hFind = INVALID_HANDLE_VALUE;	//Handle is a data type used to interract with files in windows. it is initiallized to Invalid_Handle_Value
-	WIN32_FIND_DATA ffd;					//stores the data collected from each file scanned. Most important to our use case is the file name
+	WIN32_FIND_DATAA ffd;					//stores the data collected from each file scanned. Most important to our use case is the file name
 	hFind = FindFirstFileA(opDir, &ffd);	//Initialize the handle to the first file found in the Recipes directory, here the directory path passed to the function is opDir, which is the working directiory + /*.txt appended to tell the find file function to only scan for all .txt files. file data is saved to ffd
 	recCount = 0;							//counter that will serve as the index for each file
 	memset(recList, 0, sizeof(recList));	//recList is an array that contains the names of all the files that will be scanned. this funciton clears that array to initialize it
@@ -40,7 +36,9 @@ void listRecipes() {
 			char* name = ffd.cFileName;										// sets the variable name to the name of the current file scanned including the .txt extension
 			printf("%d\t%s \n", recCount, name);							//prints the recipe name along with its index number
 			recList[recCount] = malloc(strlen(name) + 1);					//allocates memory to the current pointer in recList to scanned recipe name
-			strcpy_s(recList[recCount], strlen(name) + 1, name);				//adds the current scanned file name to recList at the position denoted by its index numbers for future indexing
+			if (recList[recCount] != 0) {
+				strcpy_s(recList[recCount], strlen(name) + 1, name);		//adds the current scanned file name to recList at the position denoted by its index numbers for future indexing
+			}
 			recCount++;														//increses index number by 1
 			free(recList[recCount]);										//frees memory allocated to the pointer earlier
 		}
@@ -48,9 +46,9 @@ void listRecipes() {
 	FindClose(hFind);														//close the find function
 }
 void openRecipe(int n) {
-	//reads the recipe from the file users input
+	//reads the recipe from the file users select
 	FILE* dat;
-	char buffer[1028];
+	char buffer[4096];
 	if (recList[n] != 0) {
 		system("cls");
 		char* filename = recList[n];
@@ -61,12 +59,12 @@ void openRecipe(int n) {
 		fclose(dat);
 		printf("\n\nPress any key to return");
 		_getch();
+		while (getchar() != '\n' && getchar() != EOF) {};
 		system("cls");
 		listRecipes();
 	}
 	else {
 		printf("Invalid index. Try again.\n");
-		_getch();
 	}
 }
 void newRecipe() {
@@ -76,7 +74,7 @@ void newRecipe() {
 	char filepath[1028];
 	printf("Enter name of new recipe: ");
 	fgets(newRecName, sizeof(newRecName), stdin);													//scans user input for recipe name
-	newRecName[strcspn(newRecName, "\n")] = 0;														//fgets appends (or reads?) the newline character from hitting enter to submit your input and thats a problem so this function just strips away that \n character
+	newRecName[strcspn(newRecName, "\n")] = 0;														//fgets reads the newline character from hitting enter to submit your input and thats a problem so this function just strips away that \n character
 	snprintf(filename, sizeof(filename), "%s.txt", newRecName);										//takes the name the user inputted and adds .txt to the end so that the resulting file that is created lower down in this function will be a .txt file
 	printf("Enter description of %s in the opened text file and save when done:\n", newRecName);
 	snprintf(filepath, sizeof(filepath), "%s\\\"%s\"", dir, filename);							//this gets what will be the filepath of the created file and saves it to filepath
@@ -101,11 +99,13 @@ void removeRecipe(int n) {
 		remove(recList[n]);
 		printf("Sucessfully deleted file. Press any key to continue");
 		_getch();
+		while (getchar() != '\n' && getchar() != EOF) {};
+
 	}
 	else {
-		scanf_s("%*[^\n]%*c");
 		printf("Canceling deletion. Press any key to continue");
 		_getch();
+		while (getchar() != '\n' && getchar() != EOF) {}
 	}
 	system("cls");
 	listRecipes();
@@ -123,18 +123,18 @@ void scanInput() {
 	printf("Input your desired action: ");
 	char c;
 	switch (c = _getch()) {
-		int sel;
+		int sel, i;
 	case 'v':
 		//select recipe
 		printf("%c", c);
 		printf("\nEnter recipe number to view: ");
-		if (scanf_s("%d", &sel) != 1) {
+		if (scanf_s("%d", &sel) != 1 || sel > (recCount-1)) {
 			printf("Invalid index. Try again.\n");
-			scanf_s("%*[^\n]%*c");
+			while (getchar() != '\n' && getchar() != EOF);
 			break;
 		}
 		else {
-			scanf_s("%*[^\n]%*c");
+			while (getchar() != '\n' && getchar() != EOF);
 			openRecipe(sel);
 			break;
 		}
@@ -148,13 +148,13 @@ void scanInput() {
 		//edit existing recipe
 		printf("%c", c);
 		printf("\nEnter recipe number to edit: ");
-		if (scanf_s("%d", &sel) != 1) {
+		if (scanf_s("%d", &sel) != 1 || sel > (recCount-1)) {
 			printf("Invalid index. Try again.\n");
-			scanf_s("%*[^\n]%*c");
+			while (getchar() != '\n' && getchar() != EOF);
 			break;
 		}
 		else {
-			scanf_s("%*[^\n]%*c");
+			while (getchar() != '\n' && getchar() != EOF);
 			editRecipe(sel);
 			break;
 		}
@@ -162,13 +162,13 @@ void scanInput() {
 		//remove recipe
 		printf("%c", c);
 		printf("\nEnter recipe number to delete: ");
-		if (scanf_s("%d", &sel) != 1) {
+		if (scanf_s("%d", &sel) != 1 || sel > (recCount-1)) {
 			printf("Invalid index. Try again.\n");
-			scanf_s("%*[^\n]%*c");
+			while (getchar() != '\n' && getchar() != EOF);
 			break;
 		}
 		else {
-			scanf_s("%*[^\n]%*c");
+			while (getchar() != '\n' && getchar() != EOF);
 			removeRecipe(sel);
 			break;
 		}
