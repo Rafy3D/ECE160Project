@@ -8,7 +8,7 @@
 /*Variables & Declarations*/
 char dir[1028];
 char opDir[1028];
-char* recList[64] = {0};
+char* recList[64] = { 0 };
 void listRecipes();
 void setDir();
 void scanInput();
@@ -69,7 +69,7 @@ void openRecipe(int n) {
 }
 void newRecipe() {
 	FILE* dat;
-	char newRecName[_MAX_FNAME-4];
+	char newRecName[_MAX_FNAME - 4];
 	char filename[_MAX_FNAME];
 	char filepath[1028];
 	printf("Enter name of new recipe: ");
@@ -99,11 +99,13 @@ void removeRecipe(int n) {
 		remove(recList[n]);
 		printf("Sucessfully deleted file. Press any key to continue");
 		_getch();
+		while (getchar() != '\n' && getchar() != EOF) {};
+
 	}
 	else {
-		scanf_s("%*[^\n]%*c");
 		printf("Canceling deletion. Press any key to continue");
 		_getch();
+		while (getchar() != '\n' && getchar() != EOF) {}
 	}
 	system("cls");
 	listRecipes();
@@ -126,13 +128,13 @@ void scanInput() {
 		//select recipe
 		printf("%c", c);
 		printf("\nEnter recipe number to view: ");
-		if (scanf_s("%d", &sel) != 1 || sel > (recCount-1)) {
+		if (scanf_s("%d", &sel) != 1 || sel > (recCount - 1)) {
 			printf("Invalid index. Try again.\n");
-			scanf_s("%*[^\n]%*c");
+			while (getchar() != '\n' && getchar() != EOF);
 			break;
 		}
 		else {
-			scanf_s("%*[^\n]%*c");
+			while (getchar() != '\n' && getchar() != EOF);
 			openRecipe(sel);
 			break;
 		}
@@ -146,13 +148,13 @@ void scanInput() {
 		//edit existing recipe
 		printf("%c", c);
 		printf("\nEnter recipe number to edit: ");
-		if (scanf_s("%d", &sel) != 1 || sel > (recCount-1)) {
+		if (scanf_s("%d", &sel) != 1 || sel > (recCount - 1)) {
 			printf("Invalid index. Try again.\n");
-			scanf_s("%*[^\n]%*c");
+			while (getchar() != '\n' && getchar() != EOF);
 			break;
 		}
 		else {
-			scanf_s("%*[^\n]%*c");
+			while (getchar() != '\n' && getchar() != EOF);
 			editRecipe(sel);
 			break;
 		}
@@ -160,13 +162,13 @@ void scanInput() {
 		//remove recipe
 		printf("%c", c);
 		printf("\nEnter recipe number to delete: ");
-		if (scanf_s("%d", &sel) != 1 || sel > (recCount-1)) {
+		if (scanf_s("%d", &sel) != 1 || sel > (recCount - 1)) {
 			printf("Invalid index. Try again.\n");
-			scanf_s("%*[^\n]%*c");
+			while (getchar() != '\n' && getchar() != EOF);
 			break;
 		}
 		else {
-			scanf_s("%*[^\n]%*c");
+			while (getchar() != '\n' && getchar() != EOF);
 			removeRecipe(sel);
 			break;
 		}
@@ -176,8 +178,6 @@ void scanInput() {
 		break;
 	default:
 		printf("Invalid input. Try again.\n");
-		while ((getchar()) != '\n' && getchar() != EOF);
 		break;
 	}
 }
-//need to add error handling for when users input invalid characters in filenames or invalid filenames
